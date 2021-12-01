@@ -1,6 +1,8 @@
 FROM ubuntu:21.10
+
+WORKDIR /app
 COPY ./graphql-engine /usr/local/bin/graphql-engine
-COPY ./docker-entrypoint-combined.sh /app
+COPY ./docker-entrypoint-combined.sh ./
 
 USER root
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -8,13 +10,20 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   gnupg2 curl apt-transport-https \
   && curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
   && curl -s https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-  && curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash \
+  && curl -fsSL https://deb.nodesource.com/setup_17.x | bash \
   && apt-get update \
   && ACCEPT_EULA=Y apt-get -y install \
   ca-certificates libkrb5-3 libpq5 libnuma1 msodbcsql17 libodbc1 default-mysql-client libmariadb-dev \
   nodejs
 
+# Node
+COPY package.json yarn.lock ./
+RUN npm install -g yarn && yarn install
+
+COPY tsconfig.json src/ ./
 
 EXPOSE 8080
 EXPOSE 3000
-CMD ["/app/docker-entrypoint-combined.sh"]
+
+RUN ["chmod", "+x", "/app/docker-entrypoint-combined.sh"]
+CMD ["bash", "/app/docker-entrypoint-combined.sh"]

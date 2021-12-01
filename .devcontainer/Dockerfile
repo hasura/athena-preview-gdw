@@ -12,4 +12,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && curl -s https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
   && apt-get update \
   && ACCEPT_EULA=Y apt-get -y install --no-install-recommends \
-  ca-certificates libkrb5-3 libpq5 libnuma1 unixodbc-dev msodbcsql17 default-libmysqlclient-dev default-mysql-client libmariadb-dev
+  ca-certificates libkrb5-3 libpq5 libnuma1 unixodbc-dev msodbcsql17 default-mysql-client libmariadb-dev

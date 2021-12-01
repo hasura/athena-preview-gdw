@@ -14,7 +14,7 @@ services:
   combined:
     build:
       context: ./
-      dockerfile: Dockerfile.hasura
+      dockerfile: Dockerfile.combined
     ports:
       - 8080:8080
       - 3000:3000
@@ -38,9 +38,9 @@ services:
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
       PORT: 3000
       # URL to this backend service, as seen from the Hasura service
-      SERVER_ENDPOINT: http://backend:3000
+      SERVER_ENDPOINT: http://0.0.0.0:3000
       # URL to the Hasura instance, as seen from this service
-      HASURA_ENDPOINT: http://hasura:8080
+      HASURA_ENDPOINT: http://0.0.0.0:8080
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
