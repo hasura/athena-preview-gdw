@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "db",
+        "kind": "dynamic",
+        "configuration": {
+          "endpoint": "http://localhost:8000"
+        },
+        "tables": [
+          {
+            "table": "artists",
+            "array_relationships": [
+              {
+                "name": "albums",
+                "using": {
+                  "manual_configuration": {
+                    "remote_table": "albums",
+                    "column_mapping": {
+                      "id": "artist_id"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": "albums",
+            "object_relationships": [
+              {
+                "name": "artist",
+                "using": {
+                  "manual_configuration": {
+                    "remote_table": "artists",
+                    "column_mapping": {
+                      "artist_id": "id"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": "allusers_pipe_view",
+            "select_permissions": [
+              {
+                "role": "user",
+                "permission": {
+                  "columns": ["userid"],
+                  "filter": {
+                    "userid": {
+                      "_eq": "X-Hasura-User-Id"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
