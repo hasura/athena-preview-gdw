@@ -1,0 +1,41 @@
+version: '3.6'
+services:
+  postgres:
+    image: postgres:12
+    restart: always
+    ports:
+    - "5432:5432"
+    volumes:
+    - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+  graphql-engine:
+    image: hasuraci/graphql-engine:v2.0.10-athena.alpha.1
+    ports:
+    - "8080:8080"
+    depends_on:
+    - "postgres"
+    restart: always
+    environment:
+      ## generate a Hasura Pro Key from the Hasura EE Control Plane for this project
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+      ## The metadata database for this Hasura GraphQL project. Can be changed to a managed postgres instance
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+
+      ## Optional settings
+      ## enable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+
+      ## Athena settings
+      AWS_DEFAULT_REGION: "us-west-2"
+      AWS_ACCESS_KEY_ID: "AKXXXXXXXXXXXXXXXXXX"
+      AWS_SECRET_ACCESS_KEY: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      AWS_ATHENA_CATALOG_NAME: "AwsDataCatalog"
+      AWS_ATHENA_DB_NAME: "sampledb"
+      AWS_S3_RESULT_BUCKET_ADDRESS: "s3://athena-demo-bucket-hasura-gavin/query-results"
+
+volumes:
+  db_data:
