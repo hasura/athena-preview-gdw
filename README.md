@@ -26,7 +26,7 @@ curl -XPOST -H 'x-hasura-admin-secret: xxxxxxx' http://hasura-endpoint/v1/metada
               "endpoint": "http://localhost:8000"
             }
           }
-          ]
+        ]
     }
   }
 }
@@ -55,8 +55,9 @@ SourceObject: {
 
 TableObject: {
   "name": TableName,
-  "object_relationships": [ Relationship ]
-  "array_relationships": [ Relationship ]
+  "object_relationships": [ Relationship ],
+  "array_relationships": [ Relationship ],
+  "select_permissions": [ PermissionRule ]
 }
 
 TableName :: String
@@ -73,4 +74,31 @@ Relationship: {
   }
 }
 
+PermissionRule: {
+  "role": RoleName,
+  "permission": {
+    "columns": [ ColumnName ],
+    "filter": {
+      ColumnName: {
+        OperatorName: SessionVariableName
+      }
+    }
+  }
+}
 
+RoleName :: String
+ColumnName :: String
+OperatorName :: String
+SessionVariableName :: String
+```
+
+## FAQ
+
+#### Manage athena credentials
+All Athena credentials are managed via env vars supplied to the docker container only. Any change in the credentials requires the docker containers to be rolled out again.
+
+#### Using Hasura console
+For this Athena preview, Hasura console is not currently supported, so you won't be able to manage metadata via the UI, and you'll have to use the metadata API
+
+#### GraphQL feature support
+For this Athena preview, Hasura only supports GraphQL schema generation from the Athena catalog, relationships and permissions. Advanced support for aggregations & subscriptions are not available yet.
