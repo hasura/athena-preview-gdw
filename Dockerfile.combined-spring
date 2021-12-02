@@ -1,0 +1,21 @@
+FROM ubuntu:21.10
+
+COPY --from=hasura/graphql-engine:v2.1.0-beta.2 /usr/bin/graphql-engine /usr/bin/graphql-engine
+COPY ./spring-graal-gql-demo/target/*-runner /app/spring-graal-gql-demo
+COPY ./docker-entrypoint-combined-spring.sh /app
+
+USER root
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get -y install \
+  gnupg2 curl apt-transport-https \
+  && curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+  && curl -s https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+  && apt-get update \
+  && ACCEPT_EULA=Y apt-get -y install \
+  ca-certificates libkrb5-3 libpq5 libnuma1 msodbcsql17 libodbc1 default-mysql-client libmariadb-dev
+
+EXPOSE 8080
+EXPOSE 8081
+
+RUN ["chmod", "+x", "/app/spring-graal-gql-demo"]
+CMD ["bash", "/app/docker-entrypoint-combined-spring.sh"]
