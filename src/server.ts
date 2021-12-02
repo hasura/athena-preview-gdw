@@ -18,7 +18,8 @@ export default async function main() {
   const app = express()
   app.use(bodyParser.json({ type: "application/json" }))
 
-  // TODO: Trigger Hasura metadata reload, check if endpoint is hit
+  // NOTE: Calling introspectAthenaAndGenerateMetadata() sets "schemaEndpointMetadata" as a side effect
+  //       This metadata is the value read by getSchemaEndpointMetadata(). This could be more clear, probably.
   app.get("/schema", async (req, res) => {
     console.log("/schema endpoint called")
     const metadata = await introspectAthenaAndGenerateMetadata()
