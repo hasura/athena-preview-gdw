@@ -11,7 +11,7 @@ Content-Type: application/json
   "args": {}
 }
 
-### Replace metadata 
+### Replace metadata (Gavin AWS region us-west-2 AthenaSQL tables)
 POST http://0.0.0.0:8080/v1/metadata HTTP/1.1
 Content-Type: application/json
 
@@ -49,6 +49,55 @@ Content-Type: application/json
       ]
     }
   }
+}
+
+### Replace metadata (Gavin AWS region us-east-1 AthenaSQL tables)
+POST http://0.0.0.0:8080/v1/metadata HTTP/1.1
+Content-Type: application/json
+
+{
+	"type": "replace_metadata",
+	"args": {
+		"metadata": {
+			"version": 3,
+			"sources": [{
+				"name": "db",
+				"kind": "dynamic",
+				"configuration": {
+					"endpoint": "http://localhost:3000"
+				},
+				"tables": [{
+						"table": "artists",
+						"array_relationships": [{
+							"name": "albums_relationship",
+							"using": {
+								"manual_configuration": {
+									"remote_table": "albums",
+									"column_mapping": {
+										"id": "artist_id"
+									}
+								}
+							}
+						}]
+					},
+					{
+						"table": "albums",
+						"object_relationships": [{
+							"name": "artist_relationship",
+							"using": {
+								"manual_configuration": {
+									"remote_table": "artists",
+									"column_mapping": {
+										"artist_id": "id"
+									}
+								}
+							}
+						}]
+					}
+				]
+			}]
+		}
+	}
 }
 
 ### Query example

@@ -22,6 +22,7 @@ export default async function main() {
   app.get("/schema", async (req, res) => {
     console.log("/schema endpoint called")
     const metadata = await introspectAthenaAndGenerateMetadata()
+    console.dir({ metadata }, { depth: Infinity })
     const schema = getSchemaEndpointMetadata()
     res.send(schema)
   })

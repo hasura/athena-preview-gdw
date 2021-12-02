@@ -19,12 +19,8 @@ const toAthenaSQLFilter = (e: Types.Expression): string => {
     case Types.ExpressionType.EQUAL:
       return `${toAthenaSQLFilter(e.left)} = ${toAthenaSQLFilter(e.right)}`
 
-    case Types.ExpressionType.IN: {
-      if (e.expression.type == Types.ExpressionType.COLUMN) {
-        return e.expression.column + " IN (" + e.values.join(", ") + ")"
-      }
-      throw Error("the 'e.expression' provided for IN expression is not of type 'Column'")
-    }
+    case Types.ExpressionType.IN:
+      return "IN (" + e.values.join(", ") + ")"
 
     case Types.ExpressionType.COLUMN:
       return e.column
@@ -56,7 +52,7 @@ const toAthenaSQLFilter = (e: Types.Expression): string => {
 
     case Types.ExpressionType.IS_NOT_NULL:
       if (e.expression.type == Types.ExpressionType.COLUMN) {
-        return `${e.expression.column} IS NOT NULL`
+        return `${e.expression.column} IS NULL`
       }
       throw Error("ExpressionType.IS_NOT_NULL but e.expression.type =! Types.ExpressionType.COLUMN")
 
@@ -80,7 +76,7 @@ function getNamesForPlainColumnTypesFromFields(fields: Types.Query["fields"]): s
     .map(([key, value]) => {
       switch (value.type) {
         case Types.FieldType.COLUMN: {
-          return `${value.column} as ${key}`
+          return `${value.column}`
         }
         case Types.FieldType.RELATIONSHIP: {
           console.log("Got relationship field", key, value)
@@ -90,6 +86,7 @@ function getNamesForPlainColumnTypesFromFields(fields: Types.Query["fields"]): s
     })
 
   console.log({ columnNames })
+
   return columnNames
 }
 
@@ -161,7 +158,51 @@ export async function fetchAthenaData(query: Types.Query) {
       return item
     }) || []
 
-    return itemsExcludingRowNumber
+
+    return await Promise.all(itemsExcludingRowNumber.map(async (row) => {
+      let result = {};
+
+      for (const alias in fields) {
+        const field = fields[alias];
+
+        switch (field.type) {
+          case Types.FieldType.COLUMN:
+            /* to support remote joins, need to send back all requested fields */
+            const colName = field.column;
+            //@ts-ignore
+            result[alias] = row[colName] || null;
+            break;
+          case Types.FieldType.RELATIONSHIP:
+            const { column_mapping, type, query: { from, where, limit, offset, fields, order_by } } = field;
+
+            const joinConditions = Object.keys(column_mapping).map(fk => {
+              const pk = column_mapping[fk];
+              return {
+                type: 'equal',
+                left: { type: 'column', column: pk },
+                right: { type: 'literal', value: row[fk] }
+              };
+            });
+
+            const whereCondition = {
+              type: 'and',
+              //@ts-ignore
+              expressions: where ? joinConditions.concat([where]) : joinConditions
+            };
+
+            //@ts-ignore
+            const relRows = fetchAthenaData({
+              //@ts-ignore
+              from, fields, limit, offset, where: whereCondition, order_by
+            })
+            //@ts-ignore
+            result[alias] = await relRows;
+            break;
+        }
+      }
+      return result;
+    })
+    )
 
   } catch (e) {
     console.log("Error during query:", e)
