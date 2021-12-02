@@ -101,4 +101,4 @@ All Athena credentials are managed via env vars supplied to the docker container
 For this Athena preview, Hasura console is not currently supported, so you won't be able to manage metadata via the UI, and you'll have to use the metadata API
 
 #### GraphQL feature support
-For this Athena preview, Hasura only supports GraphQL schema generation from the Athena catalog, relationships and permissions. Advanced support for aggregations & subscriptions are not available yet.
+For this Athena preview, Hasura only supports GraphQL schema generation from the Athena catalog, relationships and permissions. Advanced support for features like aggregations & subscriptions are not available yet.
