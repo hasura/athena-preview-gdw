@@ -1,8 +1,7 @@
-# Athena GDW Preview
+# Hasura Athena GDW Preview
 
-- Run Hasura with the docker image tag
+- Run Hasura with the docker image tag: `v2.0.10-athena.alpha.1`
 - Make sure the environment variables are setup
-
 
 ## Metadata API
 
@@ -98,7 +97,10 @@ SessionVariableName :: String
 All Athena credentials are managed via env vars supplied to the docker container only. Any change in the credentials requires the docker containers to be rolled out again.
 
 #### Using Hasura console
-For this Athena preview, Hasura console is not currently supported, so you won't be able to manage metadata via the UI, and you'll have to use the metadata API
+For this Athena preview release, Hasura console is not currently supported, so you won't be able to manage metadata via the UI, and you'll have to use the metadata API
 
 #### GraphQL feature support
-For this Athena preview, Hasura only supports GraphQL schema generation from the Athena catalog, relationships and permissions. Advanced support for features like aggregations & subscriptions are not available yet.
+For this Athena preview release, Hasura only supports GraphQL schema generation from the Athena catalog, relationships and permissions. Advanced support for features like aggregations & subscriptions are not available yet.
+
+#### Hasura EE support
+For this Athena preview release, Hasura GraphQL Engine is not enabled with EE features.
