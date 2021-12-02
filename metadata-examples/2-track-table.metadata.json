@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "db",
+        "kind": "dynamic",
+        "configuration": {
+          "endpoint": "http://localhost:8000"
+        },
+        "tables": [
+          {
+            "table": "artists"
+          }
+        ]
+      }
+    ]
+  }
+}
