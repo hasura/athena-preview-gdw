@@ -54,3 +54,10 @@ AWS_ATHENA_DB_NAME=sampledb
 AWS_S3_RESULT_BUCKET_ADDRESS=s3://athena-demo-bucket-hasura-gavin/query-results
 ```
 
+To run:
+
+- `docker compose up`
+    - Java app should now be available on port `8081`
+        - Hasura for Java app should be available on port `8060`
+    - AthenaSQL Node.js app should be available on port `3000`
+        - Hasura (Dynamic Backends) for AthenaSQL aapp should be available on port `8080`
