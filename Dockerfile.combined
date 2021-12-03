@@ -2,7 +2,6 @@ FROM ubuntu:21.10
 
 WORKDIR /app
 COPY ./graphql-engine /usr/local/bin/graphql-engine
-COPY ./docker-entrypoint-combined.sh ./
 
 USER root
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -16,11 +15,15 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   ca-certificates libkrb5-3 libpq5 libnuma1 msodbcsql17 libodbc1 default-mysql-client libmariadb-dev \
   nodejs
 
+
 # Node
 COPY package.json yarn.lock ./
 RUN npm install -g yarn && yarn install
 
 COPY tsconfig.json src/ ./
+
+# Entrypoint
+COPY ./docker-entrypoint-combined.sh ./
 
 EXPOSE 8080
 EXPOSE 3000
