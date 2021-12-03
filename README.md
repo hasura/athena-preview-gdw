@@ -1,7 +1,16 @@
 # Hasura Athena GDW Preview
 
 - Run Hasura with the docker image tag: `v2.0.10-athena.alpha.1`
-- Make sure the environment variables are setup
+- Set up your Athena DB along with S3 and the following env vars for the Hasura data plane container (aka Hasura GraphQL engine):
+```
+## Athena settings
+AWS_DEFAULT_REGION: "us-west-2"
+AWS_ACCESS_KEY_ID: "AKXXXXXXXXXXXXXXXXXX"
+AWS_SECRET_ACCESS_KEY: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+AWS_ATHENA_CATALOG_NAME: "AwsDataCatalog"
+AWS_ATHENA_DB_NAME: "sampledb"
+AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-athena/query-results"
+```
 
 ## Metadata API
 
