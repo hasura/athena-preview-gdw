@@ -12,8 +12,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && curl -fsSL https://deb.nodesource.com/setup_17.x | bash \
   && apt-get update \
   && ACCEPT_EULA=Y apt-get -y install \
-  ca-certificates libkrb5-3 libpq5 libnuma1 msodbcsql17 libodbc1 default-mysql-client libmariadb-dev \
-  nodejs libmysqlclient21
+  ca-certificates libkrb5-3 libpq5 libnuma1 msodbcsql17 libodbc1 default-mysql-client libmysqlclient21 libmariadb-dev \
+  nodejs
 
 
 # Node
