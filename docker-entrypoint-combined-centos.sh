@@ -4,7 +4,7 @@
 yarn ts-node server.ts &
 
 # Start the second process
-graphql-engine serve &
+sleep 30 && graphql-engine serve &
 
 # Wait for any process to exit
 wait -n
