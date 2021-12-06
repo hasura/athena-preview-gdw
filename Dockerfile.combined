@@ -13,7 +13,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
   && ACCEPT_EULA=Y apt-get -y install \
   ca-certificates libkrb5-3 libpq5 libnuma1 msodbcsql17 libodbc1 default-mysql-client libmariadb-dev \
-  nodejs
+  nodejs libmysqlclient21
 
 
 # Node
