@@ -1,5 +1,6 @@
 # Hasura Athena GDW Preview
 
+## Setup
 - Run Hasura with the docker image tag: `v2.0.10-athena.alpha.1`
 - Set up your Athena DB along with S3 and the following env vars for the Hasura data plane container (aka Hasura GraphQL engine):
 ```
@@ -11,6 +12,10 @@ AWS_ATHENA_CATALOG_NAME: "AwsDataCatalog"
 AWS_ATHENA_DB_NAME: "sampledb"
 AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-athena/query-results"
 ```
+- Apply the metadata you want via the metadata API or by importing metadata via the console
+- Open the Hasura console to try your GraphQL queries out:
+  - for example: at `http://localhost:8080` if you were running Hasura on your machine at port 8080
+
 
 ## Metadata API
 
@@ -113,3 +118,7 @@ For this Athena preview release, Hasura only supports GraphQL schema generation 
 
 #### Hasura EE support
 For this Athena preview release, Hasura GraphQL Engine is not enabled with EE features.
+
+#### Hasura GraphQL Engine container doesn't start with new image version
+1. Reference the logs spit out by the docker container
+2. Verify that all the AWS Athena credentials are accurately setup
