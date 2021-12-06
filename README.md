@@ -10,12 +10,15 @@ AWS_ACCESS_KEY_ID: "AKXXXXXXXXXXXXXXXXXX"
 AWS_SECRET_ACCESS_KEY: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 AWS_ATHENA_CATALOG_NAME: "AwsDataCatalog"
 AWS_ATHENA_DB_NAME: "sampledb"
-AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-athena/query-results"
+AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-graphql-athena-xxxxxxxx/query-results"
 ```
 - Apply the metadata you want via the metadata API or by importing metadata via the console
-- Use the starter metadata to get started: `starter-metadata.json`
-- Open the Hasura console to try your GraphQL queries out:
-  - for example: at `http://localhost:8080` if you were running Hasura on your machine at port 8080
+- Use the starter metadata to get started with the Athena graphql wrapper: `starter-metadata.json`
+  - Please note that for Athena, the data source has to be added with a configuration of `localhost:3000`
+    in the metadata and env vars are set on the docker container itself.
+- Update the metadata by tracking tables and relationships. Refer to `example/sample-metadata.json`.
+  - Apply the updated metadata to Hasura to try the GraphQL API.
+- Open the Hasura console to try your GraphQL queries out
 
 
 ## Metadata API
