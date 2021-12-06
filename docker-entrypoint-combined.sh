@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Start the first process
-graphql-engine serve &
-
-# Start the second process
+# Start the data wrapper and hasura
 yarn ts-node server.ts &
+
+sleep 30 && graphql-engine serve &
   
 # Wait for any process to exit
 wait -n
