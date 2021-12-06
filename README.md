@@ -13,6 +13,7 @@ AWS_ATHENA_DB_NAME: "sampledb"
 AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-athena/query-results"
 ```
 - Apply the metadata you want via the metadata API or by importing metadata via the console
+- Use the starter metadata to get started: `starter-metadata.json`
 - Open the Hasura console to try your GraphQL queries out:
   - for example: at `http://localhost:8080` if you were running Hasura on your machine at port 8080
 
@@ -36,7 +37,7 @@ curl -XPOST -H 'x-hasura-admin-secret: xxxxxxx' http://hasura-endpoint/v1/metada
             "name": "db",
             "kind": "dynamic",
             "configuration": {
-              "endpoint": "http://localhost:8000"
+              "endpoint": "http://localhost:3000"
             }
           }
         ]
@@ -61,7 +62,7 @@ SourceObject: {
   "name": "db",
   "kind": "dynamic",
   "configuration": {
-    "endpoint": "http://localhost:8000"
+    "endpoint": "http://localhost:3000"
   }
   "tables": [ TableObject ]
 }
