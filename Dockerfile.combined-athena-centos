@@ -1,0 +1,20 @@
+ARG CENTOS_BASE_IMAGE_VERSION="20211026"
+FROM hasuraci/graphql-engine-centos-base:${CENTOS_BASE_IMAGE_VERSION}
+
+WORKDIR /app
+COPY ./graphql-engine /usr/bin
+COPY ./docker-entrypoint-combined-centos.sh ./
+
+RUN dnf -y module install nodejs:16
+
+# Node
+COPY package.json yarn.lock ./
+RUN npm install -g yarn && yarn install
+
+COPY tsconfig.json src/ ./
+
+EXPOSE 8080
+EXPOSE 3000
+
+RUN ["chmod", "+x", "/app/docker-entrypoint-combined-centos.sh"]
+CMD ["bash", "/app/docker-entrypoint-combined-centos.sh"]

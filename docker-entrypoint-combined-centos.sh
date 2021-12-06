@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Start the first process
-graphql-engine serve &
+yarn ts-node server.ts &
 
 # Start the second process
-yarn ts-node server.ts &
-  
+graphql-engine serve &
+
 # Wait for any process to exit
 wait -n
   
