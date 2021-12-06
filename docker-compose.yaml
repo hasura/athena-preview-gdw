@@ -24,6 +24,37 @@ services:
     environment:
       POSTGRES_PASSWORD: postgrespassword
 
+  postgres4:
+    image: postgres:14
+    restart: always
+    volumes:
+      - db_data4:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+
+  centos-java-hasura:
+    build:
+      context: ./
+      dockerfile: Dockerfile.combined-java-centos
+    depends_on:
+      - "postgres4"    
+    ports:
+      - 8061:8080
+      - 8082:8081
+    restart: always
+    environment:
+      ## postgres database to store Hasura metadata
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres4:5432/postgres
+      ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres4:5432/postgres
+      ## enable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      ## uncomment next line to set an admin secret
+      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+
   centos-athena-hasura:
     build:
       context: ./
@@ -129,4 +160,5 @@ volumes:
   db_data: ~
   db_data2: ~
   db_data3: ~
+  db_data4: ~
   notused: ~

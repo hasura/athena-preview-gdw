@@ -1,0 +1,14 @@
+ARG CENTOS_BASE_IMAGE_VERSION="20211026"
+FROM hasuraci/graphql-engine-centos-base:${CENTOS_BASE_IMAGE_VERSION}
+
+COPY --from=hasura/graphql-engine:v2.1.0-beta.2 /bin/graphql-engine /usr/bin/graphql-engine
+COPY ./spring-graal-gql-demo/*-runner /app/spring-graal-gql-demo
+COPY ./docker-entrypoint-combined-spring.sh /app
+
+EXPOSE 8080
+EXPOSE 8081
+
+RUN ["chmod", "+x", "/app/spring-graal-gql-demo"]
+
+USER hasura
+CMD ["bash", "/app/docker-entrypoint-combined-spring.sh"]
