@@ -1,5 +1,11 @@
 # Hasura Athena GDW Preview
 
+Video: 
+
+https://user-images.githubusercontent.com/131160/144965943-a5ce3d04-f958-479e-97c3-909299f6c2c1.mp4
+
+
+
 ## Setup
 - Run Hasura with the docker image tag: ` hasuraci/graphql-engine-pro:v2.0.10-athena.alpha.3`
   - Refer `example/docker-compose.yaml` for a reference
