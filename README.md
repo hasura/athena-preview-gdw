@@ -1,7 +1,8 @@
 # Hasura Athena GDW Preview
 
 ## Setup
-- Run Hasura with the docker image tag: `v2.0.10-athena.alpha.1`
+- Run Hasura with the docker image tag: ` hasuraci/graphql-engine:v2.0.10-athena.alpha.3`
+  - Refer `example/docker-compose.yaml` for a reference
 - Set up your Athena DB along with S3 and the following env vars for the Hasura data plane container (aka Hasura GraphQL engine):
 ```
 ## Athena settings
@@ -12,6 +13,7 @@ AWS_ATHENA_CATALOG_NAME: "AwsDataCatalog"
 AWS_ATHENA_DB_NAME: "sampledb"
 AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-graphql-athena-xxxxxxxx/query-results"
 ```
+- Note that you can't add Athena as a data source via the console since this is a preview release
 - Apply the metadata you want via the metadata API or by importing metadata via the console
 - Use the starter metadata to get started with the Athena graphql wrapper: `starter-metadata.json`
   - Please note that for Athena, the data source has to be added with a configuration of `localhost:3000`
@@ -21,33 +23,119 @@ AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-graphql-athena-xxxxxxxx/query-results
 - Open the Hasura console to try your GraphQL queries out
 
 
-## Metadata API
+## Metadata examples:
 
-- API endpoint:
-```
-curl -XPOST -H 'x-hasura-admin-secret: xxxxxxx' http://hasura-endpoint/v1/metadata -d @apply_metadata.json
-```
+#### Using the console:
 
-- `metadata.json`
+- **Add Athena as a source:**
+  - Import the following `example/1-athena-metadata.json` via the console
+  - This will add Athena as a source however, the GraphQL API will not be affected since
+    no tables or relationships have been added
+
 ```
 {
-  "type": "replace_metadata",
-  "args": {
-    "metadata": {
-        "version": 3,
-        "sources": [
-          {
-            "name": "db",
-            "kind": "dynamic",
-            "configuration": {
-              "endpoint": "http://localhost:3000"
-            }
-          }
-        ]
-    }
+  "metadata": {
+    "version": 3,
+      "sources": [
+      {
+        "name": "db",
+        "kind": "dynamic",
+        "configuration": {
+          "endpoint": "http://localhost:3000"
+        }
+      }
+      ]
   }
 }
 ```
+
+- **Track tables:**
+  - Create metdata simillar to the following `example/2-track-tables-metadata.json` via the console
+  - This will allow you to query the GraphQL API. 
+  - Note: Please do change the name of tables as per your Athena catalog!
+```
+{
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "db",
+        "kind": "dynamic",
+        "configuration": {
+          "endpoint": "http://localhost:3000"
+        },
+        "tables": [
+          {
+            "table": "artists",
+          },
+          {
+            "table": "albums",
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+- **Track relationships:**
+  - Create metdata simillar to the following `example/3-track-relationships-metadata.json` via the console
+  - This will allow you to query the GraphQL API.
+  - Note: Please do change the name of tables and relationships as per your Athena catalog!
+```
+{
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "db",
+        "kind": "dynamic",
+        "configuration": {
+          "endpoint": "http://localhost:3000"
+        },
+        "tables": [
+          {
+            "table": "artists",
+            "array_relationships": [
+              {
+                "name": "albums",
+                "using": {
+                  "manual_configuration": {
+                    "remote_table": "albums",
+                    "column_mapping": {
+                      "id": "artist_id"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": "albums",
+            "object_relationships": [
+              {
+                "name": "artist",
+                "using": {
+                  "manual_configuration": {
+                    "remote_table": "artists",
+                    "column_mapping": {
+                      "artist_id": "id"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### Using the metadata API:
+
+Refer to `example/requests.http` to see how you can do all of the above using the Metadata API directly.
 
 ## Metadata reference for Athena
 

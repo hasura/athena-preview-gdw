@@ -4,15 +4,15 @@ services:
     image: postgres:12
     restart: always
     ports:
-    - "5432:5432"
+    - "5433:5432"
     volumes:
     - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgrespassword
   graphql-engine:
-    image: hasuraci/graphql-engine:v2.0.10-athena.alpha.1
+    image: hasuraci/graphql-engine:v2.0.10-athena.alpha.1.c
     ports:
-    - "8080:8080"
+    - "8082:8080"
     depends_on:
     - "postgres"
     restart: always
@@ -30,12 +30,12 @@ services:
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
 
       ## Athena settings
-      AWS_DEFAULT_REGION: "us-west-2"
-      AWS_ACCESS_KEY_ID: "AKXXXXXXXXXXXXXXXXXX"
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "XXXXXXXXXXXXXXXXXXXX"
       AWS_SECRET_ACCESS_KEY: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       AWS_ATHENA_CATALOG_NAME: "AwsDataCatalog"
-      AWS_ATHENA_DB_NAME: "sampledb"
-      AWS_S3_RESULT_BUCKET_ADDRESS: "s3://athena-demo-bucket-hasura-gavin/query-results"
+      AWS_ATHENA_DB_NAME: "xx_xx_xx_xx"
+      AWS_S3_RESULT_BUCKET_ADDRESS: "s3://athena-example-bucket-xx/xx-query-results-xx"
 
 volumes:
   db_data:

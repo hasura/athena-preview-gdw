@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "db",
+        "kind": "dynamic",
+        "configuration": {
+          "endpoint": "http://localhost:3000"
+        },
+        "tables": []
+      }
+    ]
+  }
+}
