@@ -28,7 +28,7 @@ AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-graphql-athena-xxxxxxxx/query-results
 #### Using the console:
 
 - **Add Athena as a source:**
-  - Import the following `example/1-athena-metadata.json` via the console
+  - Import the following `example/1-add-athena-metadata.json` via the console
   - This will add Athena as a source however, the GraphQL API will not be affected since
     no tables or relationships have been added
 
@@ -42,7 +42,8 @@ AWS_S3_RESULT_BUCKET_ADDRESS: "s3://hasura-graphql-athena-xxxxxxxx/query-results
         "kind": "dynamic",
         "configuration": {
           "endpoint": "http://localhost:3000"
-        }
+        },
+        "tables": []
       }
       ]
   }
