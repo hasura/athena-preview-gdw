@@ -1,5 +1,6 @@
 import { athena } from "./aws-athena-sql"
 import * as Types from "./types"
+import { debug } from "./utils"
 
 const toAthenaSQLFilter = (e: Types.Expression): string => {
   switch (e.type) {
@@ -83,19 +84,19 @@ function getNamesForPlainColumnTypesFromFields(fields: Types.Query["fields"]): s
           return `${value.column} as ${key}`
         }
         case Types.FieldType.RELATIONSHIP: {
-          console.log("Got relationship field", key, value)
+          debug("Got relationship field", key, value)
           return ""
         }
       }
     })
 
-  console.log({ columnNames })
+  debug({ columnNames })
   return columnNames
 }
 
 export async function fetchAthenaData(query: Types.Query) {
-  console.log("query:")
-  console.dir(query, { depth: Infinity })
+  debug("query:")
+  debug(query)
 
   const { from, fields, limit, offset, where, order_by } = query
   const columns = getNamesForPlainColumnTypesFromFields(fields)
@@ -147,13 +148,13 @@ export async function fetchAthenaData(query: Types.Query) {
     }
   })()
 
-  console.log("ATHENA SQL QUERY GENERATED:")
-  console.log("\t" + sqlQuery)
+  debug("ATHENA SQL QUERY GENERATED:")
+  debug("\t" + sqlQuery)
 
   try {
     const queryResults = await athena.query(sqlQuery)
-    console.log("ATHENA SQL QUERY RESULTS:")
-    console.log({ queryResults, items: queryResults.Items })
+    debug("ATHENA SQL QUERY RESULTS:")
+    debug({ queryResults, items: queryResults.Items })
     // Get rid of the "rn" column, which will be present if "offset" or "limit" is used
     const itemsExcludingRowNumber = queryResults.Items?.map((it) => {
       const item = it as Record<string, any>

@@ -4,7 +4,7 @@ import { exportAthenaTablesToHasuraMetadata } from "./aws-athena-sql"
 import { AWS_ATHENA_CATALOG_NAME, AWS_ATHENA_DB_NAME, PORT } from "./env"
 import { fetchAthenaData } from "./index"
 import * as Types from "./types"
-import { replaceHasuraMetadata } from "./utils"
+import { debug, replaceHasuraMetadata } from "./utils"
 
 let schemaEndpointMetadata: Types.Schema
 function setSchemaEndpointMetadata(metadata: Types.Schema) {
@@ -31,8 +31,8 @@ export default async function main() {
   app.post("/query", async (req, res) => {
     const query: Types.Query = req.body
     const result = await fetchAthenaData(query)
-    console.log("got /query result:")
-    console.log(result)
+    debug("got /query result:")
+    debug(result)
     res.send(result)
   })
 

@@ -2,6 +2,11 @@ import fetch from "cross-fetch"
 import { HASURA_ENDPOINT } from "./env"
 import type * as Types from "./types"
 
+export function debug(...args: Parameters<typeof console.log>) {
+  if (!process.env["DEBUG"]) return
+  console.log(args)
+}
+
 export async function replaceHasuraMetadata(metadata: Record<string, any>) {
   return fetch(HASURA_ENDPOINT + "/v1/metadata", {
     method: "POST",
