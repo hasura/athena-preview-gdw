@@ -4,7 +4,7 @@
 node ./dist/server.js &
 
 # Start the second process
-graphql-engine serve &
+sleep 30 && graphql-engine serve &
 
 # Wait for any process to exit
 wait -n

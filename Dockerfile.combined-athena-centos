@@ -29,7 +29,6 @@ RUN ACCEPT_EULA=Y yum install -y msodbcsql17 unixODBC-devel
 RUN dnf install -y mysql-libs mariadb-connector-c-3.1.13-3.el9 \
     && ln -s /usr/lib64/libpcre.so.1 /usr/lib64/libpcre.so.3 
 
-# Node
 RUN dnf -y install nodejs
 
 RUN yum clean all && rm -rf /var/cache/yum \
@@ -38,7 +37,6 @@ RUN yum clean all && rm -rf /var/cache/yum \
 #############################################
 WORKDIR /app
 COPY ./graphql-engine /usr/bin
-COPY ./docker-entrypoint-combined-centos.sh ./
 
 # Node
 COPY package.json tsconfig.json /app/
@@ -51,6 +49,8 @@ RUN npm prune --production
 
 # Get rid of NPM
 RUN rm -rf /lib/node_modules/npm /usr/bin/npm
+
+COPY ./docker-entrypoint-combined-centos.sh ./
 
 EXPOSE 8080
 EXPOSE 3000
