@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start the first process
-yarn ts-node server.ts &
+node ./dist/server.js &
 
 # Start the second process
 graphql-engine serve &

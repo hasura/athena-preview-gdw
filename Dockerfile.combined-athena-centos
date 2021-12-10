@@ -12,7 +12,7 @@ FROM quay.io/centos/centos:stream9
 # libpq5 libkrb5-3 libnuma1 ca-certificates (ca-certificates are preinstalled)
 RUN dnf -y install 'dnf-command(config-manager)' \
     && dnf config-manager --set-enabled crb \
-    && dnf upgrade \
+    && dnf upgrade -y \
     && dnf install -y \
     libpq-13.2-4.el9 \
     krb5-libs \
@@ -32,8 +32,8 @@ RUN dnf install -y mysql-libs mariadb-connector-c-3.1.13-3.el9 \
 # Node
 RUN dnf -y install nodejs
 
-RUN yum install -y nc
-RUN yum clean all && rm -rf /var/cache/yum
+RUN yum clean all && rm -rf /var/cache/yum \
+    && dnf clean all && rm -rf /var/cache/dnf
 
 #############################################
 WORKDIR /app
@@ -41,10 +41,16 @@ COPY ./graphql-engine /usr/bin
 COPY ./docker-entrypoint-combined-centos.sh ./
 
 # Node
-COPY package.json yarn.lock ./
-RUN npm install -g yarn && yarn install
+COPY package.json tsconfig.json /app/
+RUN npm install
 
-COPY tsconfig.json src/ ./
+COPY ./src /app/src
+RUN mkdir -p /app/dist
+RUN npm run build
+RUN npm prune --production
+
+# Get rid of NPM
+RUN rm -rf /lib/node_modules/npm /usr/bin/npm
 
 EXPOSE 8080
 EXPOSE 3000
