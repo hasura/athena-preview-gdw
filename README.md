@@ -7,7 +7,7 @@ https://user-images.githubusercontent.com/131160/144965943-a5ce3d04-f958-479e-97
 
 
 ## Setup
-- Run Hasura with the docker image tag: ` hasuraci/graphql-engine-pro:v2.0.10-athena.alpha.3`
+- Run Hasura with the docker image tag: ` hasuraci/graphql-engine-pro:v2.0.10-athena.alpha.4`
   - Refer `example/docker-compose.yaml` for a reference
 - Set up your Athena DB along with S3 and the following env vars for the Hasura data plane container (aka Hasura GraphQL engine):
 ```
