@@ -7,6 +7,7 @@ import {
   AWS_DEFAULT_REGION,
   AWS_S3_RESULT_BUCKET_ADDRESS,
   AWS_SECRET_ACCESS_KEY,
+  AWS_SESSION_TOKEN,
   SERVER_ENDPOINT,
 } from "./env"
 import type * as Types from "./types"
@@ -16,6 +17,7 @@ AWS.config.update({
   region: AWS_DEFAULT_REGION,
   accessKeyId: AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  ...(AWS_SESSION_TOKEN && { sessionToken: AWS_SESSION_TOKEN }),
 })
 
 const officialAthena = new AWS.Athena()
