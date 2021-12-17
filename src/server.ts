@@ -6,14 +6,6 @@ import { fetchAthenaData } from "./index"
 import * as Types from "./types"
 import { debug, replaceHasuraMetadata } from "./utils"
 
-let schemaEndpointMetadata: Types.Schema
-function setSchemaEndpointMetadata(metadata: Types.Schema) {
-  schemaEndpointMetadata = metadata
-}
-function getSchemaEndpointMetadata(): Types.Schema {
-  return schemaEndpointMetadata
-}
-
 export default async function main() {
   const app = express()
   app.use(bodyParser.json({ type: "application/json" }))
@@ -22,10 +14,27 @@ export default async function main() {
   //       This metadata is the value read by getSchemaEndpointMetadata(). This could be more clear, probably.
   app.get("/schema", async (req, res) => {
     console.log("/schema endpoint called")
-    const metadata = await introspectAthenaAndGenerateMetadata()
-    console.dir({ metadata }, { depth: Infinity })
-    const schema = getSchemaEndpointMetadata()
-    res.send(schema)
+
+    console.log("Attempting to introspect AthenaSQL database table and convert to Hasura metadata")
+    console.log("Catalog and database are:", { AWS_ATHENA_CATALOG_NAME, AWS_ATHENA_DB_NAME })
+    const metadata = await exportAthenaTablesToHasuraMetadata({
+      CatalogName: AWS_ATHENA_CATALOG_NAME,
+      DatabaseName: AWS_ATHENA_DB_NAME,
+    })
+
+    console.log("Introspected AthenaSQL and converted tables to Hasura schema & metadata")
+    console.log("Returning the below as the /schema response")
+    console.dir(metadata.schemaEndpointMetadata, { depth: Infinity })
+
+    console.log("Valid Hasura metadata.json for these Athena tables is below")
+    console.log("You may save this as metadata.json and import it from the web console or Metadata API")
+    console.dir(metadata.hasuraMetadata, { depth: Infinity })
+
+    console.log("==============================")
+    console.log("!! NOTE: If either of the above objects are empty, then something went wrong")
+    console.log("==============================")
+
+    res.json(metadata.schemaEndpointMetadata)
   })
 
   app.post("/query", async (req, res) => {
@@ -45,23 +54,9 @@ main().catch((err) => {
   console.log("Error in main()", err)
 })
 
-async function runReplaceHasuraMetadata(metadata: Awaited<ReturnType<typeof introspectAthenaAndGenerateMetadata>>) {
-  console.log("Attempting to replace Hasura metadata via /v1/metadata replace_metadata call")
-  const replaceMetadataRequest = await replaceHasuraMetadata(metadata.hasuraMetadata)
-  const replaceMetadataResult = await replaceMetadataRequest.json()
-  console.log("Result of replace_metadata is:", replaceMetadataResult)
-}
-
-async function introspectAthenaAndGenerateMetadata() {
-  console.log("Attempting to introspect AthenaSQL database table and convert to Hasura metadata")
-  console.log("Catalog and database are:", { AWS_ATHENA_CATALOG_NAME, AWS_ATHENA_DB_NAME })
-  const metadata = await exportAthenaTablesToHasuraMetadata({
-    CatalogName: AWS_ATHENA_CATALOG_NAME,
-    DatabaseName: AWS_ATHENA_DB_NAME,
-  })
-  console.log("Result of introspecting AthenaSQL and converting to Hasura metadata:")
-  console.dir(metadata, { depth: Infinity })
-
-  setSchemaEndpointMetadata(metadata.schemaEndpointMetadata)
-  return metadata
-}
+// async function runReplaceHasuraMetadata(metadata: Awaited<ReturnType<typeof introspectAthenaAndGenerateMetadata>>) {
+//   console.log("Attempting to replace Hasura metadata via /v1/metadata replace_metadata call")
+//   const replaceMetadataRequest = await replaceHasuraMetadata(metadata.hasuraMetadata)
+//   const replaceMetadataResult = await replaceMetadataRequest.json()
+//   console.log("Result of replace_metadata is:", replaceMetadataResult)
+// }

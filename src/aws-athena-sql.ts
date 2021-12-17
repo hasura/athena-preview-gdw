@@ -11,6 +11,7 @@ import {
   SERVER_ENDPOINT,
 } from "./env"
 import type * as Types from "./types"
+import { debug } from "./utils"
 
 // AWS.config.loadFromPath(path.resolve(__dirname, "./aws.config.json"))
 AWS.config.update({
@@ -40,14 +41,69 @@ export async function getAthenaTableMetadata(params: AWS.Athena.GetTableMetadata
   }
 }
 
+type AthenaSQLColumnType =
+  | "boolean"
+  | "tinyint" | "bigint" | "smallint" | "int" | "integer"
+  | "double" | "float" | "decimal"
+  | "date" | "timestamp"
+  | "varchar" | "char" | "string"
+  | "binary"
+  | "array"
+  | "map"
+  | "struct"
+
+
+// REF: https://docs.aws.amazon.com/athena/latest/ug/data-types.html
 function athenaTypeToHasuraMetadataType(typename: AWS.Athena.TypeString): Types.ScalarType {
-  switch (typename) {
+  const unsupportedAthenaDatatypes = [
+    "array",
+    "map",
+    "struct",
+    "binary",
+  ]
+
+  // Athena data types that are encoded with variable length or precision
+  // IE: "char(20)", "varchar(1000)", "double(10, 5)"
+  const variableLengthOrPrecisionAthenaDatatypes = [
+    "varchar",
+    "char",
+    "double",
+  ]
+
+  if (unsupportedAthenaDatatypes.some((t) => typename.startsWith(t))) {
+    console.warn("[athenaTypeToHasuraMetadataType] Unsupported athena data type encountered:", typename)
+  }
+
+  if (variableLengthOrPrecisionAthenaDatatypes.some((t) => typename.startsWith(t))) {
+    debug("[athenaTypeToHasuraMetadataType] Found variable length or precision type:", typename)
+    debug("[athenaTypeToHasuraMetadataType] Stripping off precision and length")
+  }
+
+  const typenameWithoutLengthOrPrecision = typename.replace(/\(.*\)/, "") as AthenaSQLColumnType
+  debug("[athenaTypeToHasuraMetadataType] Switching on:", typenameWithoutLengthOrPrecision)
+
+  switch (typenameWithoutLengthOrPrecision) {
+    case "bigint":
     case "int":
+    case "integer":
+    case "tinyint":
+    case "smallint":
+    case "float":
+    case "decimal":
+    case "double":
       return "number"
+    case "char":
+    case "varchar":
+    case "string":
+    case "timestamp":
     case "date":
       return "string"
-    default:
-      return typename as any
+    case "boolean":
+      return "bool"
+    default: {
+      console.warn("[athenaTypeToHasuraMetadataType] case-switch default: returning string as type for unsupported type:", typename)
+      return "string"
+    }
   }
 }
 
@@ -148,7 +204,7 @@ const athenaExpressConfig: Partial<ConnectionConfigInterface> = {
    */
   ignoreEmpty: process.env["AWS_ATHENA_OPTION_IGNORE_EMPTY_FIELDS"] ? // optional
     Boolean(process.env["AWS_ATHENA_OPTION_IGNORE_EMPTY_FIELDS"])
-    : true,
+    : false,
   /**
    * The name of the workgroup in which the query is being started.
    * Note: athena-express cannot create workgroups (as it includes a lot of configuration)
@@ -177,7 +233,11 @@ const athenaExpressConfig: Partial<ConnectionConfigInterface> = {
   )
 }
 
-console.log("CONFIGURING ATHENA CLIENT WITH PARAMETERS: ", athenaExpressConfig)
+console.log("CONFIGURING ATHENA CLIENT WITH PARAMETERS: ", {
+  ...athenaExpressConfig,
+  aws: "<IGNORED>",
+})
+
 export const athena = new AthenaExpress(athenaExpressConfig)
 
 // Example for quick testing -- call this if you need to test connection/config and query results
