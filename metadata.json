@@ -6,7 +6,7 @@
         "name": "db",
         "kind": "dynamic",
         "configuration": {
-          "endpoint": "http://localhost:8000"
+          "endpoint": "http://localhost:3000"
         },
         "tables": [
           {
@@ -35,22 +35,6 @@
                     "remote_table": "artists",
                     "column_mapping": {
                       "artist_id": "id"
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          {
-            "table": "allusers_pipe_view",
-            "select_permissions": [
-              {
-                "role": "user",
-                "permission": {
-                  "columns": ["userid"],
-                  "filter": {
-                    "userid": {
-                      "_eq": "X-Hasura-User-Id"
                     }
                   }
                 }

@@ -7,18 +7,27 @@ import {
   AWS_DEFAULT_REGION,
   AWS_S3_RESULT_BUCKET_ADDRESS,
   AWS_SECRET_ACCESS_KEY,
+  AWS_OPTION_HTTP_OPTIONS_PROXY_URL,
   AWS_SESSION_TOKEN,
   SERVER_ENDPOINT,
 } from "./env"
 import type * as Types from "./types"
 import { debug } from "./utils"
+import { default as proxy } from "proxy-agent"
 
 // AWS.config.loadFromPath(path.resolve(__dirname, "./aws.config.json"))
 AWS.config.update({
   region: AWS_DEFAULT_REGION,
   accessKeyId: AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  ...(AWS_SESSION_TOKEN && { sessionToken: AWS_SESSION_TOKEN }),
+  ...(AWS_SESSION_TOKEN && {
+    sessionToken: AWS_SESSION_TOKEN,
+  }),
+  ...(AWS_OPTION_HTTP_OPTIONS_PROXY_URL && {
+    httpOptions: {
+      agent: proxy(AWS_OPTION_HTTP_OPTIONS_PROXY_URL),
+    },
+  }),
 })
 
 const officialAthena = new AWS.Athena()
@@ -43,32 +52,31 @@ export async function getAthenaTableMetadata(params: AWS.Athena.GetTableMetadata
 
 type AthenaSQLColumnType =
   | "boolean"
-  | "tinyint" | "bigint" | "smallint" | "int" | "integer"
-  | "double" | "float" | "decimal"
-  | "date" | "timestamp"
-  | "varchar" | "char" | "string"
+  | "tinyint"
+  | "bigint"
+  | "smallint"
+  | "int"
+  | "integer"
+  | "double"
+  | "float"
+  | "decimal"
+  | "date"
+  | "timestamp"
+  | "varchar"
+  | "char"
+  | "string"
   | "binary"
   | "array"
   | "map"
   | "struct"
 
-
 // REF: https://docs.aws.amazon.com/athena/latest/ug/data-types.html
 function athenaTypeToHasuraMetadataType(typename: AWS.Athena.TypeString): Types.ScalarType {
-  const unsupportedAthenaDatatypes = [
-    "array",
-    "map",
-    "struct",
-    "binary",
-  ]
+  const unsupportedAthenaDatatypes = ["array", "map", "struct", "binary"]
 
   // Athena data types that are encoded with variable length or precision
   // IE: "char(20)", "varchar(1000)", "double(10, 5)"
-  const variableLengthOrPrecisionAthenaDatatypes = [
-    "varchar",
-    "char",
-    "double",
-  ]
+  const variableLengthOrPrecisionAthenaDatatypes = ["varchar", "char", "double"]
 
   if (unsupportedAthenaDatatypes.some((t) => typename.startsWith(t))) {
     console.warn("[athenaTypeToHasuraMetadataType] Unsupported athena data type encountered:", typename)
@@ -101,7 +109,10 @@ function athenaTypeToHasuraMetadataType(typename: AWS.Athena.TypeString): Types.
     case "boolean":
       return "bool"
     default: {
-      console.warn("[athenaTypeToHasuraMetadataType] case-switch default: returning string as type for unsupported type:", typename)
+      console.warn(
+        "[athenaTypeToHasuraMetadataType] case-switch default: returning string as type for unsupported type:",
+        typename
+      )
       return "string"
     }
   }
@@ -165,7 +176,7 @@ const athenaExpressConfig: Partial<ConnectionConfigInterface> = {
    * athena-express will create a new bucket for you if you don't provide a value for this param but
    * sometimes that could cause an issue if you had recently deleted a bucket with the same name.
    * (something to do with cache).
-   * 
+   *
    * When that happens, just specify you own bucket name.
    * Alternatively you can also use workgroup.
    */
@@ -174,10 +185,10 @@ const athenaExpressConfig: Partial<ConnectionConfigInterface> = {
    * Athena database name that the SQL queries should be executed in.
    * When a db name is specified in the config, you can execute SQL queries without needing to
    * explicitly mention DB name.
-   * 
+   *
    * e.g.
    * athenaExpress.query("SELECT * FROM movies LIMIT 3")
-   * 
+   *
    * as opposed to
    * athenaExpress.query({sql: "SELECT * FROM movies LIMIT 3", db: "moviedb"});
    */
@@ -189,48 +200,48 @@ const athenaExpressConfig: Partial<ConnectionConfigInterface> = {
   /**
    * Override as false if you rather get the raw unformatted output from S3.
    */
-  formatJson: process.env["AWS_ATHENA_OPTION_FORMAT_JSON"] ? // optional
-    Boolean(process.env["AWS_ATHENA_OPTION_FORMAT_JSON"])
+  formatJson: process.env["AWS_ATHENA_OPTION_FORMAT_JSON"] // optional
+    ? Boolean(process.env["AWS_ATHENA_OPTION_FORMAT_JSON"])
     : true,
   /**
    * Set getStats: true to capture additional metadata for your query
    */
-  getStats: process.env["AWS_ATHENA_OPTION_GET_QUERY_STATS"]  // optional
+  getStats: process.env["AWS_ATHENA_OPTION_GET_QUERY_STATS"] // optional
     ? Boolean(process.env["AWS_ATHENA_OPTION_GET_QUERY_STATS"])
     : true,
   /**
    * Ignore fields with empty values from the final JSON response.
 
    */
-  ignoreEmpty: process.env["AWS_ATHENA_OPTION_IGNORE_EMPTY_FIELDS"] ? // optional
-    Boolean(process.env["AWS_ATHENA_OPTION_IGNORE_EMPTY_FIELDS"])
+  ignoreEmpty: process.env["AWS_ATHENA_OPTION_IGNORE_EMPTY_FIELDS"] // optional
+    ? Boolean(process.env["AWS_ATHENA_OPTION_IGNORE_EMPTY_FIELDS"])
     : false,
   /**
    * The name of the workgroup in which the query is being started.
    * Note: athena-express cannot create workgroups (as it includes a lot of configuration)
    * so you will need to create one beforehand IFF you intend to use a non default workgroup
    */
-  workgroup: process.env["AWS_ATHENA_OPTION_WORKGROUP"]  // optional
+  workgroup: process.env["AWS_ATHENA_OPTION_WORKGROUP"] // optional
     ? process.env["AWS_ATHENA_OPTION_WORKGROUP"]
     : "primary",
   /**
    * Wait interval between re-checking if the specific Athena query has finished executing
    */
-  retry: process.env["AWS_ATHENA_OPTION_RETRY_MS"]  // optional
+  retry: process.env["AWS_ATHENA_OPTION_RETRY_MS"] // optional
     ? Number(process.env["AWS_ATHENA_OPTION_RETRY_MS"])
     : 200,
-  ...(
-    process.env["AWS_ATHENA_OPTION_ENCRYPTION_ENABLED"] && { // optional
-      /**
-       * Encryption configuation example usage:
-       * { EncryptionOption: "SSE_KMS", KmsKey: process.env.kmskey }
-       */
-      encryption: {
-        EncryptionOption: process.env["AWS_ATHENA_OPTION_ENCRYPTION_TYPE"] ?? "SSE_KMS",
-        [process.env["AWS_ATHENA_OPTION_ENCRYPTION_KEY"] ?? "KmsKey"]: process.env["AWS_ATHENA_OPTION_ENCRYPTION_VALUE"] ?? "",
-      }
-    }
-  )
+  ...(process.env["AWS_ATHENA_OPTION_ENCRYPTION_ENABLED"] && {
+    // optional
+    /**
+     * Encryption configuation example usage:
+     * { EncryptionOption: "SSE_KMS", KmsKey: process.env.kmskey }
+     */
+    encryption: {
+      EncryptionOption: process.env["AWS_ATHENA_OPTION_ENCRYPTION_TYPE"] ?? "SSE_KMS",
+      [process.env["AWS_ATHENA_OPTION_ENCRYPTION_KEY"] ?? "KmsKey"]:
+        process.env["AWS_ATHENA_OPTION_ENCRYPTION_VALUE"] ?? "",
+    },
+  }),
 }
 
 console.log("CONFIGURING ATHENA CLIENT WITH PARAMETERS: ", {
