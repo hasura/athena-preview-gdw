@@ -68,9 +68,6 @@ Content-Type: application/json
 				},
 				"tables": [
           {
-            "table": "allusers_pipe"
-          },
-          {
 						"table": "artists",
 						"array_relationships": [{
 							"name": "albums_relationship",

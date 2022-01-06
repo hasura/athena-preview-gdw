@@ -124,12 +124,15 @@ services:
       context: ./
       dockerfile: Dockerfile.combined
     ports:
-      - 8080:8080
-      - 3000:3000
+      - 8085:8080
+      - 3001:3000
     depends_on:
       - "postgres"
+    volumes:
+      - ./src:/app/src
     restart: always
     environment:
+      DEBUG: true
       ## postgres database to store Hasura metadata
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
       ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
@@ -146,6 +149,7 @@ services:
       SERVER_ENDPOINT: http://0.0.0.0:3000
       # URL to the Hasura instance, as seen from this service
       HASURA_ENDPOINT: http://0.0.0.0:8080
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}

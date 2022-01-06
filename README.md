@@ -44,11 +44,10 @@ There are 2 parts here:
 These are both configured in the `docker-compose.yaml` with all the environment variables they need.
 It requires an `.env` file for the AthenaSQL one to work.
 
-You can use my AWS credentials so that you can skip having to create the S3 bucket + Athena definitions if you like:
 ```env
 AWS_DEFAULT_REGION=us-west-2
-AWS_ACCESS_KEY_ID=AKIAS5RFMXHHKT5GTNTU
-AWS_SECRET_ACCESS_KEY=mowavbUGVr7y2s1sfZru8d4rLbjQwV+hq75S3WMg
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 AWS_ATHENA_CATALOG_NAME=AwsDataCatalog
 AWS_ATHENA_DB_NAME=sampledb
 AWS_S3_RESULT_BUCKET_ADDRESS=s3://athena-demo-bucket-hasura-gavin/query-results
@@ -59,5 +58,5 @@ To run:
 - `docker compose up`
     - Java app should now be available on port `8081`
         - Hasura for Java app should be available on port `8060`
-    - AthenaSQL Node.js app should be available on port `3000`
-        - Hasura (Dynamic Backends) for AthenaSQL aapp should be available on port `8080`
+    - AthenaSQL Node.js app should be available on port `3001`
+        - Hasura (Dynamic Backends) for AthenaSQL aapp should be available on port `8085`
