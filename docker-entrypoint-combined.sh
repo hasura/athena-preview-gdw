@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start the data wrapper and hasura
-yarn nodemon server.ts &
+yarn nodemon ./src/server.ts &
 
 sleep 30 && graphql-engine serve &
   
